@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marry — Your Personal AI Assistant</title>
+<link rel="stylesheet" href="/web/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Floating background gradients -->
+        <div class="bg-glow bg-glow-1"></div>
+        <div class="bg-glow bg-glow-2"></div>
+        <div class="bg-glow bg-glow-3"></div>
+
+        <div class="glass-layout">
+            
+            <!-- LEFT SIDEBAR: Logs & Status -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <div class="app-status">
+                        <span class="status-dot"></span>
+                        <span id="headerStatus">ONLINE</span>
+                    </div>
+                    <div class="sidebar-icons">
+                        <i class="fas fa-bars"></i>
+                        <i class="fas fa-cog"></i>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="label">ACTIVITY LOG</h3>
+                    <div class="terminal-log" id="terminalLog">
+                        <p><span class="log-sys">[SYS]</span> Marry protocols initialized.</p>
+                        <p><span class="log-sys">[SYS]</span> Secure connection established.</p>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="label">ACTIVE MODULES</h3>
+                    <div class="module-stack">
+                        <div class="mod-item">
+                            <i class="fas fa-brain"></i>
+                            <span>Neural Core v4.0</span>
+                            <span class="mod-stat">Active</span>
+                        </div>
+                        <div class="mod-item">
+                            <i class="fas fa-wave-square"></i>
+                            <span>Voice Engine</span>
+                            <span class="mod-stat">Ready</span>
+                        </div>
+                        <div class="mod-item">
+                            <i class="fas fa-network-wired"></i>
+                            <span>Global Sync</span>
+                            <span class="mod-stat" id="webStatus">Standby</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-footer">
+                    <div class="time-box">
+                        <span id="clock" class="clock-val">12:00:00</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- MAIN CONTENT AREA -->
+            <main class="main-content">
+                <div class="top-greeting">
+                    <h2 id="greeting">Hello, User!</h2>
+                    <h1>How can I help you today?</h1>
+                </div>
+
+                <div class="ai-orb-container">
+                    <div class="orb-wrapper" id="globe">
+                        <div class="orb-outer-glow"></div>
+                        <div class="orb">
+                            <div class="orb-inner-light"></div>
+                            <div class="orb-eyes">
+                                <div class="eye left-eye"></div>
+                                <div class="eye right-eye"></div>
+                            </div>
+                        </div>
+                        <div class="orb-shadow"></div>
+                    </div>
+                    
+                    <div class="status-indicator">
+                        <p id="status">IDLE</p>
+                    </div>
+
+                    <canvas id="waveCanvas"></canvas>
+                </div>
+
+                <div class="quick-actions">
+                    <div class="action-card">
+                        <div class="card-icon blue"><i class="fas fa-globe"></i></div>
+                        <div class="card-text">
+                            <h4>Web Automation</h4>
+                            <p>"Open Google / YouTube"</p>
+                        </div>
+                    </div>
+                    <div class="action-card">
+                        <div class="card-icon purple"><i class="fas fa-book-open"></i></div>
+                        <div class="card-text">
+                            <h4>Knowledge Base</h4>
+                            <p>"Search Wikipedia Quantum..."</p>
+                        </div>
+                    </div>
+                    <div class="action-card">
+                        <div class="card-icon pink"><i class="fas fa-music"></i></div>
+                        <div class="card-text">
+                            <h4>Media Player</h4>
+                            <p>"Play [song] on YouTube"</p>
+                        </div>
+                    </div>
+                    <div class="action-card">
+                        <div class="card-icon green"><i class="fas fa-desktop"></i></div>
+                        <div class="card-text">
+                            <h4>System Control</h4>
+                            <p>"Open Notepad / Calc"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bottom-controls">
+                    <div class="input-bar">
+                        <div class="add-btn"><i class="fas fa-plus"></i></div>
+                        <div class="text-input" id="transcription">Ask me anything...</div>
+                        <div class="mic-btn" id="mic-btn" onclick="toggleListening()">
+                            <i class="fas fa-microphone"></i>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- RIGHT PANEL: Knowledge & Intelligence -->
+            <aside class="right-panel">
+                <div class="rp-header">
+                    <i class="fas fa-layer-group"></i>
+                    <span>KNOWLEDGE</span>
+                </div>
+
+                <div class="knowledge-card" id="knowledgeCard">
+                    <div class="kc-indicator">
+                        <i class="fas fa-satellite"></i>
+                        <span id="knock-title">Awaiting Query</span>
+                    </div>
+                    <div class="kc-content">
+                        <p id="knock-content">I am connected to global databases. Ask a question to see real-time intelligence data here.</p>
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <div class="stat-card">
+                        <div class="s-val">4.7GB</div>
+                        <div class="s-label">Cache</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="s-val">12ms</div>
+                        <div class="s-label">Latency</div>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+    </div>
+
+    <script src="/web/script.js"></script>
+</body>
+</html>

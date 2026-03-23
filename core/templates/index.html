@@ -1,0 +1,280 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A.U.R.A — AI Voice Assistant</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Scanline overlay -->
+    <div class="scanlines"></div>
+    <!-- Hex grid background -->
+    <canvas id="hexBg"></canvas>
+
+    <div class="hud-frame">
+
+        <!-- ===== TOP BAR ===== -->
+        <header class="top-bar">
+            <div class="tb-left">
+                <div class="aura-logo">
+                    <div class="logo-hex">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <div class="logo-text">
+                        <span class="logo-main">A.U.R.A</span>
+                        <span class="logo-sub">AUTONOMOUS UNIFIED RESPONSE AGENT</span>
+                    </div>
+                </div>
+            </div>
+            <div class="tb-center">
+                <div class="top-status-row">
+                    <div class="ts-item">
+                        <span class="ts-label">SYS TIME</span>
+                        <span id="clock" class="ts-value blink-cursor"></span>
+                    </div>
+                    <div class="ts-divider"></div>
+                    <div class="ts-item">
+                        <span class="ts-label">STATUS</span>
+                        <span class="ts-value green-glow" id="headerStatus">STANDBY</span>
+                    </div>
+                    <div class="ts-divider"></div>
+                    <div class="ts-item">
+                        <span class="ts-label">BUILD</span>
+                        <span class="ts-value">v4.7.2</span>
+                    </div>
+                </div>
+            </div>
+            <div class="tb-right">
+                <div class="signal-bars" title="Signal Strength">
+                    <div class="sbar s1"></div>
+                    <div class="sbar s2"></div>
+                    <div class="sbar s3"></div>
+                    <div class="sbar s4"></div>
+                    <div class="sbar s5"></div>
+                </div>
+                <div class="conn-badge">
+                    <i class="fas fa-wifi"></i> CONNECTED
+                </div>
+                <div class="conn-badge enc">
+                    <i class="fas fa-lock"></i> ENCRYPTED
+                </div>
+            </div>
+        </header>
+
+        <!-- Corner decorations -->
+        <div class="corner tl"></div>
+        <div class="corner tr"></div>
+        <div class="corner bl"></div>
+        <div class="corner br"></div>
+
+        <!-- ===== MAIN GRID ===== -->
+        <div class="main-grid">
+
+            <!-- LEFT PANEL -->
+            <aside class="panel panel-left">
+                <div class="panel-header">
+                    <div class="ph-accent"></div>
+                    <i class="fas fa-terminal"></i>
+                    <span>COMMAND LOG</span>
+                    <div class="ph-line"></div>
+                </div>
+                <div class="terminal-log" id="terminalLog">
+                    <p><span class="log-sys">[SYS]</span> A.U.R.A core systems booted.</p>
+                    <p><span class="log-sys">[SYS]</span> Click the microphone to begin.</p>
+                </div>
+
+                <div class="panel-header mt-16">
+                    <div class="ph-accent"></div>
+                    <i class="fas fa-list-ul"></i>
+                    <span>AVAILABLE COMMANDS</span>
+                    <div class="ph-line"></div>
+                </div>
+                <div class="cmd-list">
+                    <div class="cmd-card">
+                        <div class="cmd-icon-wrap"><i class="fas fa-globe-asia"></i></div>
+                        <div>
+                            <div class="cmd-title">WEB AUTOMATION</div>
+                            <div class="cmd-sub">"Open Google / YouTube"</div>
+                        </div>
+                        <div class="cmd-arrow"><i class="fas fa-chevron-right"></i></div>
+                    </div>
+                    <div class="cmd-card">
+                        <div class="cmd-icon-wrap"><i class="fas fa-book-open"></i></div>
+                        <div>
+                            <div class="cmd-title">KNOWLEDGE BASE</div>
+                            <div class="cmd-sub">"Wikipedia quantum physics"</div>
+                        </div>
+                        <div class="cmd-arrow"><i class="fas fa-chevron-right"></i></div>
+                    </div>
+                    <div class="cmd-card">
+                        <div class="cmd-icon-wrap"><i class="fas fa-play-circle"></i></div>
+                        <div>
+                            <div class="cmd-title">MEDIA CONTROL</div>
+                            <div class="cmd-sub">"Play [song] on YouTube"</div>
+                        </div>
+                        <div class="cmd-arrow"><i class="fas fa-chevron-right"></i></div>
+                    </div>
+                    <div class="cmd-card">
+                        <div class="cmd-icon-wrap"><i class="fas fa-desktop"></i></div>
+                        <div>
+                            <div class="cmd-title">SYSTEM CONTROL</div>
+                            <div class="cmd-sub">"Open Notepad / Calculator"</div>
+                        </div>
+                        <div class="cmd-arrow"><i class="fas fa-chevron-right"></i></div>
+                    </div>
+                    <div class="cmd-card">
+                        <div class="cmd-icon-wrap"><i class="fas fa-search"></i></div>
+                        <div>
+                            <div class="cmd-title">SMART SEARCH</div>
+                            <div class="cmd-sub">"Search Google for..."</div>
+                        </div>
+                        <div class="cmd-arrow"><i class="fas fa-chevron-right"></i></div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- CENTER PANEL -->
+            <section class="center-panel">
+                <!-- Neural core visualizer -->
+                <div class="neural-wrapper">
+                    <canvas id="neuralCanvas"></canvas>
+                    <!-- Hex mic ring -->
+                    <div class="hex-core" id="hexCore">
+                        <div class="hc-ring r1"></div>
+                        <div class="hc-ring r2"></div>
+                        <div class="hc-ring r3"></div>
+                        <div class="hc-inner">
+                            <div class="mic-btn" id="mic-btn" onclick="toggleListening()">
+                                <div class="mic-ring"></div>
+                                <i class="fas fa-microphone"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Wave canvas -->
+                    <canvas id="waveCanvas"></canvas>
+                </div>
+
+                <!-- Transcription bar -->
+                <div class="transcript-bar">
+                    <span class="tb-icon"><i class="fas fa-comment-dots"></i></span>
+                    <span id="transcription" class="transcript-text">Initialize voice recognition...</span>
+                    <div class="tb-cursor"></div>
+                </div>
+
+                <!-- Status display -->
+                <div class="status-box">
+                    <div class="sb-top-row">
+                        <div class="sb-line-l"></div>
+                        <h1 class="status" id="status">SYSTEM OFFLINE</h1>
+                        <div class="sb-line-r"></div>
+                    </div>
+                </div>
+
+                <!-- Bottom HUD row -->
+                <div class="bottom-hud">
+                    <div class="nav-item active" title="Security">
+                        <i class="fas fa-shield-alt"></i><span>Shield</span>
+                    </div>
+                    <div class="nav-item" title="Audio">
+                        <i class="fas fa-wave-square"></i><span>Audio</span>
+                    </div>
+                    <div class="nav-item" title="Database">
+                        <i class="fas fa-database"></i><span>Data</span>
+                    </div>
+                    <div class="nav-item" title="Settings">
+                        <i class="fas fa-cog"></i><span>Config</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL -->
+            <aside class="panel panel-right">
+                <div class="panel-header">
+                    <div class="ph-accent green"></div>
+                    <i class="fas fa-brain"></i>
+                    <span>INTELLIGENCE OUTPUT</span>
+                    <div class="ph-line"></div>
+                </div>
+                <div class="knowledge-card" id="knowledgeCard">
+                    <div class="kc-header">
+                        <i class="fas fa-satellite-dish"></i>
+                        <span id="knock-title">Awaiting Query...</span>
+                    </div>
+                    <p id="knock-content">Connect to the global network or ask a question to extract data packets from the intelligence layer.</p>
+                </div>
+
+                <div class="panel-header mt-16">
+                    <div class="ph-accent orange"></div>
+                    <i class="fas fa-sitemap"></i>
+                    <span>SYSTEM MODULES</span>
+                    <div class="ph-line"></div>
+                </div>
+                <div class="module-list">
+                    <div class="module-item">
+                        <div class="module-left">
+                            <div class="module-dot green"></div>
+                            <span>NLP Inference Engine</span>
+                        </div>
+                        <span class="module-status green-text">ONLINE</span>
+                    </div>
+                    <div class="module-item">
+                        <div class="module-left">
+                            <div class="module-dot blue"></div>
+                            <span>Voice Synthesis</span>
+                        </div>
+                        <span class="module-status blue-text">ONLINE</span>
+                    </div>
+                    <div class="module-item">
+                        <div class="module-left">
+                            <div class="module-dot yellow" id="webDot"></div>
+                            <span>Global Fetch API</span>
+                        </div>
+                        <span class="module-status yellow-text" id="webStatus">STANDBY</span>
+                    </div>
+                    <div class="module-item">
+                        <div class="module-left">
+                            <div class="module-dot red" id="micDot"></div>
+                            <span>Microphone Array</span>
+                        </div>
+                        <span class="module-status red-text" id="micStatus">OFFLINE</span>
+                    </div>
+                </div>
+
+                <div class="panel-header mt-16">
+                    <div class="ph-accent purple"></div>
+                    <i class="fas fa-chart-line"></i>
+                    <span>SESSION STATS</span>
+                    <div class="ph-line"></div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-icon"><i class="fas fa-terminal"></i></div>
+                        <div class="stat-val" id="commandCount">0</div>
+                        <div class="stat-label">Commands</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                        <div class="stat-val" id="sessionTime">00:00</div>
+                        <div class="stat-label">Session</div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Bottom bar -->
+        <div class="bottom-bar">
+            <span class="bb-text"><i class="fas fa-circle green-dot"></i> ALL SYSTEMS NOMINAL</span>
+            <span class="bb-text">NEURAL NET ACTIVE</span>
+            <span class="bb-text">ENCRYPTION: AES-256</span>
+        </div>
+    </div>
+
+    <script src="{% static 'js/script.js' %}"></script>
+    <script src="{% static 'js/hexbg.js' %}"></script>
+</body>
+</html>

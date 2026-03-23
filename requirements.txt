@@ -4,3 +4,4 @@ pywhatkit==5.4
 wikipedia==1.4.0
 pyaudio>=0.2.14
 eel==0.16.0
+scikit-learn>=1.0.0

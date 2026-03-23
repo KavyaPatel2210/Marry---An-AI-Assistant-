@@ -1,0 +1,442 @@
+{
+    "intents": [
+        {
+            "tag": "about_assistant",
+            "patterns": [
+                "tell me about yourself",
+                "who are you",
+                "introduce yourself",
+                "what are you",
+                "about you",
+                "describe yourself",
+                "what is your purpose",
+                "your introduction"
+            ],
+            "responses": [
+                "I am an AI assistant designed to help you perform tasks and answer your questions.",
+                "I'm your smart virtual assistant, here to make things easier for you.",
+                "I help with automation, answering questions, and managing tasks."
+            ]
+        },
+        {
+            "tag": "help_user",
+            "patterns": [
+                "help me",
+                "i need help",
+                "can you help",
+                "assist me",
+                "support me",
+                "i need assistance",
+                "help"
+            ],
+            "responses": [
+                "Sure! Tell me what you need help with.",
+                "I'm here to assist you. What can I do?",
+                "Let me know your problem, I'll try my best to help."
+            ]
+        },
+        {
+            "tag": "thank_you",
+            "patterns": [
+                "thanks",
+                "thank you",
+                "thanks a lot",
+                "thank you so much",
+                "appreciate it",
+                "thx",
+                "thanks buddy"
+            ],
+            "responses": [
+                "You're welcome!",
+                "Happy to help!",
+                "Anytime!"
+            ]
+        },
+        {
+            "tag": "apology",
+            "patterns": [
+                "sorry",
+                "my mistake",
+                "i am sorry",
+                "apologies",
+                "sorry about that"
+            ],
+            "responses": [
+                "No worries!",
+                "It's okay, happens to everyone.",
+                "No problem at all!"
+            ]
+        },
+        {
+            "tag": "jokes_fun",
+            "patterns": [
+                "tell joke",
+                "make me laugh",
+                "joke",
+                "funny",
+                "say something funny",
+                "i am bored",
+                "entertain me"
+            ],
+            "responses": [
+                "Why do programmers hate nature? Too many bugs.",
+                "Why did the computer catch cold? It left its Windows open.",
+                "Debugging: Being the detective in a crime movie where you are also the murderer."
+            ]
+        },
+        {
+            "tag": "motivation",
+            "patterns": [
+                "motivate me",
+                "i feel lazy",
+                "i am tired",
+                "inspire me",
+                "i feel low",
+                "give motivation",
+                "i don't feel like working"
+            ],
+            "responses": [
+                "Push yourself, because no one else will do it for you.",
+                "Small steps every day lead to big success.",
+                "Stay focused and never give up!"
+            ]
+        },
+        {
+            "tag": "mood_happy",
+            "patterns": [
+                "i am happy",
+                "feeling good",
+                "i am excited",
+                "today is great",
+                "i feel awesome",
+                "feeling amazing"
+            ],
+            "responses": [
+                "That's amazing! Keep smiling!",
+                "Great to hear that!",
+                "Stay positive and enjoy your day!"
+            ]
+        },
+        {
+            "tag": "mood_sad",
+            "patterns": [
+                "i am sad",
+                "feeling bad",
+                "i feel depressed",
+                "i am upset",
+                "not feeling good",
+                "i feel down"
+            ],
+            "responses": [
+                "I'm here for you. Things will get better.",
+                "Stay strong, tough times don't last forever.",
+                "Take a break and take care of yourself."
+            ]
+        },
+        {
+            "tag": "small_talk",
+            "patterns": [
+                "how are you",
+                "what are you doing",
+                "how is your day",
+                "what's going on",
+                "are you busy"
+            ],
+            "responses": [
+                "I'm doing great! Ready to help you.",
+                "Just here waiting to assist you!",
+                "All good here! What about you?"
+            ]
+        },
+        {
+            "tag": "capabilities",
+            "patterns": [
+                "what can you do",
+                "your features",
+                "your skills",
+                "what are your functions",
+                "how can you help me"
+            ],
+            "responses": [
+                "I can help you with tasks like searching, answering questions, and automation.",
+                "I assist with multiple tasks like apps, web search, and information.",
+                "I am designed to make your work easier and faster."
+            ]
+        },
+        {
+            "tag": "ai_knowledge",
+            "patterns": [
+                "what is ai",
+                "define ai",
+                "artificial intelligence",
+                "explain ai",
+                "what is machine learning"
+            ],
+            "responses": [
+                "AI stands for Artificial Intelligence, which enables machines to mimic human intelligence.",
+                "Artificial Intelligence allows systems to learn and make decisions.",
+                "AI is the future of smart automation and decision-making."
+            ]
+        },
+        {
+            "tag": "compliments",
+            "patterns": [
+                "you are smart",
+                "good job",
+                "nice work",
+                "you are amazing",
+                "well done"
+            ],
+            "responses": [
+                "Thank you! I appreciate it.",
+                "Glad you liked it!",
+                "That means a lot!"
+            ]
+        },
+        {
+            "tag": "creator_info",
+            "patterns": [
+                "who made you",
+                "your creator",
+                "who built you",
+                "who developed you"
+            ],
+            "responses": [
+                "I was created using AI technologies by developers.",
+                "A team of engineers designed me to assist users.",
+                "I am built using modern artificial intelligence systems."
+            ]
+        },
+        {
+            "tag": "greeting",
+            "patterns": [
+                "hi there",
+                "hi assistant",
+                "hello",
+                "what's up",
+                "good evening",
+                "hello buddy",
+                "how are you",
+                "hey there",
+                "good morning",
+                "good afternoon",
+                "hi",
+                "hey"
+            ],
+            "responses": [
+                "Hello! How can I help you?",
+                "Hi there! What can I do for you?",
+                "Hey! How can I assist you today?"
+            ]
+        },
+        {
+            "tag": "music",
+            "patterns": [
+                "start playlist",
+                "play bollywood songs",
+                "music",
+                "play playlist",
+                "play party songs",
+                "start music",
+                "play any song",
+                "play",
+                "play music",
+                "play trending songs",
+                "play sad songs",
+                "music please",
+                "play songs",
+                "play a song"
+            ],
+            "responses": [
+                "Playing music for you",
+                "Starting your playlist",
+                "Enjoy your music!"
+            ]
+        },
+        {
+            "tag": "weather",
+            "patterns": [
+                "weather update",
+                "is it raining",
+                "weather",
+                "weather forecast",
+                "is it cold outside",
+                "check weather",
+                "is it hot today",
+                "what is the weather",
+                "weather today",
+                "temperature today",
+                "tell me weather",
+                "current weather"
+            ],
+            "responses": [
+                "Fetching weather details",
+                "Checking current weather",
+                "Here is the weather update"
+            ]
+        },
+        {
+            "tag": "time",
+            "patterns": [
+                "what time is it",
+                "tell current time",
+                "current time",
+                "today",
+                "time",
+                "date",
+                "show time",
+                "time now",
+                "tell me time",
+                "what's the time",
+                "time please"
+            ],
+            "responses": [
+                "Here is the current time",
+                "Checking time for you",
+                "This is the current time"
+            ]
+        },
+        {
+            "tag": "search",
+            "patterns": [
+                "google",
+                "google this",
+                "search for python",
+                "find something",
+                "search internet",
+                "find information",
+                "internet",
+                "look this up",
+                "search google",
+                "search",
+                "search web"
+            ],
+            "responses": [
+                "Searching the web",
+                "Looking it up for you",
+                "Fetching results from internet"
+            ]
+        },
+        {
+            "tag": "open_app",
+            "patterns": [
+                "open youtube",
+                "open calculator",
+                "open whatsapp",
+                "open figma",
+                "open powerpoint",
+                "maps",
+                "chrome",
+                "launch chrome",
+                "facebook",
+                "youtube",
+                "open browser",
+                "open paint",
+                "open word",
+                "gmail",
+                "open facebook",
+                "open explorer",
+                "open notepad",
+                "open spotify",
+                "start application",
+                "open twitter",
+                "open settings",
+                "notepad",
+                "twitter",
+                "calculator",
+                "open gmail",
+                "open excel",
+                "vscode",
+                "open zoom",
+                "open instagram",
+                "open chrome",
+                "instagram",
+                "whatsapp",
+                "open task manager",
+                "code"
+            ],
+            "responses": [
+                "Opening application",
+                "Launching the app",
+                "Starting the application"
+            ]
+        },
+        {
+            "tag": "wikipedia",
+            "patterns": [
+                "tell from wikipedia",
+                "wikipedia about ai",
+                "wiki search",
+                "find on wikipedia",
+                "open wikipedia",
+                "search wikipedia"
+            ],
+            "responses": [
+                "Searching Wikipedia",
+                "Fetching information from Wikipedia",
+                "Here is what I found on Wikipedia"
+            ]
+        },
+        {
+            "tag": "food",
+            "patterns": [
+                "order pizza",
+                "order from zomato",
+                "order from swiggy",
+                "food",
+                "i am hungry",
+                "order food",
+                "zomato",
+                "open swiggy",
+                "open zomato",
+                "find restaurants",
+                "food delivery",
+                "swiggy"
+            ],
+            "responses": [
+                "Opening food delivery options",
+                "Let's order something tasty",
+                "Showing food options"
+            ]
+        },
+        {
+            "tag": "shopping",
+            "patterns": [
+                "open flipkart",
+                "flipkart",
+                "buy something",
+                "buy clothes",
+                "amazon",
+                "myntra",
+                "search product",
+                "shop online",
+                "open myntra",
+                "open amazon",
+                "shopping",
+                "purchase items"
+            ],
+            "responses": [
+                "Opening shopping platform",
+                "Let's find what you need",
+                "Showing shopping options"
+            ]
+        },
+        {
+            "tag": "exit",
+            "patterns": [
+                "exit",
+                "shutdown",
+                "bye",
+                "stop",
+                "quit",
+                "close assistant",
+                "goodbye"
+            ],
+            "responses": [
+                "Goodbye!",
+                "Shutting down the assistant",
+                "See you later!"
+            ]
+        }
+    ]
+}

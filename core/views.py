@@ -9,6 +9,11 @@ import time
 import datetime
 import webbrowser
 import urllib.parse
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from predict import predict_intent, get_response
 
 import speech_recognition as sr
 import pyttsx3
@@ -255,98 +260,58 @@ class VoiceAssistant:
         _log("System", f"Processing: '{cmd}'")
 
         try:
-            # ── GREETINGS ──────────────────────────────────────
-            if re.search(r'\b(hello|hi|hey|what\'s up|howdy)\b', cmd):
-                self.speak("Greetings. All Marry systems are operational.")
-                return
 
-            if "how are you" in cmd:
-                self.speak("All neural pathways functioning at peak efficiency. How may I assist?")
+            # Machine Learning Intent Prediction
+            tag, confidence = predict_intent(cmd)
+            
+            if tag == 'unknown':
+                self.speak("Sorry, I didn't understand that.")
+                # Fallback Search
+                _set(knowledge={"title": "Fallback Search", "content": f"Query: {cmd}"})
+                google_search(cmd)
                 return
+                
+            response = get_response(tag)
 
-            if re.search(r'\b(your name|who are you|what are you)\b', cmd):
-                self.speak("I am Marry — Advanced Neural Response Interface. Your personal AI assistant.")
-                return
+            social_intents = [
+                'greeting', 'about_assistant', 'help_user', 'thank_you', 
+                'apology', 'jokes_fun', 'motivation', 'mood_happy', 
+                'mood_sad', 'small_talk', 'capabilities', 'ai_knowledge', 
+                'compliments', 'creator_info'
+            ]
 
-            # ── TIME & DATE ────────────────────────────────────
-            if re.search(r'\btime\b', cmd):
+            if tag in social_intents:
+                self.speak(response)
+
+            elif tag == 'time':
                 t = datetime.datetime.now().strftime("%I:%M %p")
-                self.speak(f"The current time is {t}.")
-                return
+                self.speak(f"{response}. It is {t}.")
 
-            if re.search(r'\bdate|today\b', cmd):
-                d = datetime.datetime.now().strftime("%A, %B %d, %Y")
-                self.speak(f"Today is {d}.")
-                return
+            elif tag == 'music':
+                q = re.sub(r'(play|on youtube|youtube|music|a song|songs|playlist|start|please|any)', '', cmd).strip()
+                if not q:
+                    q = "trending songs"
+                _set(knowledge={"title": "Media Control", "content": f"Streaming: {q}"})
+                self.speak(response)
+                youtube_play(q)
 
+            elif tag == 'weather':
+                self.speak(response)
+                google_search("weather today")
 
-            # ── OPEN WEBSITES ──────────────────────────────────
-            if "open google" in cmd:
-                _set(knowledge={"title": "Web Automation", "content": "Launching: google.com"})
-                self.speak("Opening Google.")
-                open_url("https://www.google.com")
-                return
+            elif tag == 'search':
+                m = re.sub(r'(search|for|on|google|internet|web|find|information|look up|this)', '', cmd).strip()
+                if not m:
+                    m = cmd
+                _set(knowledge={"title": "Google Search", "content": f"Query: {m}"})
+                self.speak(response)
+                google_search(m)
 
-            if "open youtube" in cmd:
-                _set(knowledge={"title": "Web Automation", "content": "Launching: youtube.com"})
-                self.speak("Opening YouTube.")
-                open_url("https://www.youtube.com")
-                return
-
-            if "open instagram" in cmd:
-                _set(knowledge={"title": "Web Automation", "content": "Launching: instagram.com"})
-                self.speak("Opening Instagram.")
-                open_url("https://www.instagram.com")
-                return
-
-            if "open facebook" in cmd:
-                _set(knowledge={"title": "Web Automation", "content": "Launching: facebook.com"})
-                self.speak("Opening Facebook.")
-                open_url("https://www.facebook.com")
-                return
-
-            if "open twitter" in cmd or "open x.com" in cmd:
-                _set(knowledge={"title": "Web Automation", "content": "Launching: x.com"})
-                self.speak("Opening X.")
-                open_url("https://www.x.com")
-                return
-
-            if "open github" in cmd:
-                _set(knowledge={"title": "Web Automation", "content": "Launching: github.com"})
-                self.speak("Opening GitHub.")
-                open_url("https://www.github.com")
-                return
-
-            if "open linkedin" in cmd:
-                _set(knowledge={"title": "Web Automation", "content": "Launching: linkedin.com"})
-                self.speak("Opening LinkedIn.")
-                open_url("https://www.linkedin.com")
-                return
-
-            if "open whatsapp" in cmd:
-                _set(knowledge={"title": "Web Automation", "content": "Launching: web.whatsapp.com"})
-                self.speak("Opening WhatsApp Web.")
-                open_url("https://web.whatsapp.com")
-                return
-
-            if "open gmail" in cmd:
-                _set(knowledge={"title": "Web Automation", "content": "Launching: gmail.com"})
-                self.speak("Opening Gmail.")
-                open_url("https://mail.google.com")
-                return
-
-            if "open maps" in cmd or "open google maps" in cmd:
-                _set(knowledge={"title": "Web Automation", "content": "Launching: maps.google.com"})
-                self.speak("Opening Google Maps.")
-                open_url("https://maps.google.com")
-                return
-
-            # ── KNOWLEDGE (WIKIPEDIA) ──────────────────────────
-            if "wikipedia" in cmd:
-                q = cmd.replace("wikipedia", "").replace("search", "").replace("for", "").strip()
+            elif tag == 'wikipedia':
+                q = cmd.replace("wikipedia", "").replace("search", "").replace("for", "").replace("tell", "").replace("from", "").replace("about", "").replace("open", "").replace("wiki", "").replace("find", "").replace("on", "").strip()
+                self.speak(response)
                 if q:
                     try:
-                        _set(knowledge={"title": f"Target: {q.title()}", "content": "Fetching data from Wikipedia..."})
                         import wikipedia
                         results = wikipedia.summary(q, sentences=2)
                         _set(knowledge={"title": f"Wikipedia: {q.title()}", "content": results})
@@ -356,92 +321,56 @@ class VoiceAssistant:
                         self.speak("I couldn't find a specific Wikipedia entry for that.")
                 else:
                     self.speak("What subject should I lookup on Wikipedia?")
-                return
 
-            # ── SEARCH ─────────────────────────────────────────
-            if re.search(r'search (for |google for |on google |on youtube )?', cmd):
-                m = re.sub(r'(search|for|on|google|youtube)', '', cmd).strip()
-                if "youtube" in cmd:
-                    _set(knowledge={"title": "YouTube Search", "content": f"Query: {m}"})
-                    self.speak(f"Searching YouTube for {m}.")
-                    youtube_play(m)
+            elif tag == 'open_app':
+                app_to_open = re.sub(r'\b(open|launch|start|application|browser)\b', '', cmd).strip()
+                if not app_to_open:
+                    self.speak(response)
                 else:
-                    _set(knowledge={"title": "Google Search", "content": f"Query: {m}"})
-                    self.speak(f"Searching Google for {m}.")
-                    google_search(m)
-                return
+                    web_mappings = {
+                        "google": "https://www.google.com",
+                        "youtube": "https://www.youtube.com",
+                        "instagram": "https://www.instagram.com",
+                        "facebook": "https://www.facebook.com",
+                        "twitter": "https://www.x.com",
+                        "x.com": "https://www.x.com",
+                        "github": "https://www.github.com",
+                        "linkedin": "https://www.linkedin.com",
+                        "whatsapp": "https://web.whatsapp.com",
+                        "gmail": "https://mail.google.com",
+                        "maps": "https://maps.google.com"
+                    }
+                    self.speak(response)
+                    found_web = False
+                    for kw, url in web_mappings.items():
+                        if kw in app_to_open:
+                            open_url(url)
+                            found_web = True
+                            break
+                    if not found_web:
+                        success = open_application(app_to_open)
+                        if not success:
+                            self.speak(f"I'm sorry, I couldn't find {app_to_open} on your system.")
 
-            # ── PLAY YOUTUBE ───────────────────────────────────
-            if "play" in cmd:
-                q = re.sub(r'(play|on youtube|youtube)', '', cmd).strip()
-                if q:
-                    _set(knowledge={"title": "Media Control", "content": f"Streaming: {q}"})
-                    self.speak(f"Playing {q} on YouTube.")
-                    youtube_play(q)
+            elif tag == 'food':
+                self.speak(response)
+                if "zomato" in cmd:
+                    open_url("https://www.zomato.com")
                 else:
-                    self.speak("What would you like me to play?")
-                return
+                    open_url("https://www.swiggy.com")
 
-            # ── UNIVERSAL APP OPENER ───────────────────────────
-            # Handles "open X", "launch X", and just "X" for known apps
-            if "open" in cmd or "launch" in cmd:
-                app_to_open = re.sub(r'\b(open|launch)\b', '', cmd).strip()
-                # Skip if it's a web URL already handled above
-                web_keywords = ["google", "youtube", "facebook", "instagram", "twitter", "github", "linkedin", "whatsapp", "gmail", "maps"]
-                if app_to_open and not any(x in app_to_open for x in web_keywords):
-                    _set(knowledge={"title": "App Launcher", "content": f"Opening: {app_to_open}"})
-                    success = open_application(app_to_open)
-                    if success:
-                        self.speak(f"Opening {app_to_open}.")
-                    else:
-                        self.speak(f"I'm sorry, I couldn't find {app_to_open} on your system.")
-                    return
+            elif tag == 'shopping':
+                self.speak(response)
+                if "myntra" in cmd:
+                    open_url("https://www.myntra.com")
+                elif "flipkart" in cmd:
+                    open_url("https://www.flipkart.com")
+                else:
+                    open_url("https://www.amazon.in")
 
-            # Keyword shortcut: say the app name directly without "open"
-            known_apps = [
-                "notepad", "calculator", "spotify", "figma", "paint",
-                "chrome", "edge", "word", "excel", "powerpoint",
-                "explorer", "settings", "task manager",
-            ]
-            for app in known_apps:
-                if app in cmd:
-                    _set(knowledge={"title": "App Launcher", "content": f"Opening: {app}"})
-                    success = open_application(app)
-                    if success:
-                        self.speak(f"Opening {app}.")
-                    else:
-                        self.speak(f"Sorry, {app} doesn't seem to be installed on your system.")
-                    return
-
-            if "screenshot" in cmd or "take screenshot" in cmd:
-                _set(knowledge={"title": "System Action", "content": "Capturing screenshot via Snipping Tool..."})
-                self.speak("Opening Snipping Tool for screenshot.")
-                open_application("snipping tool")
-                return
-
-
-            # ── VOLUME ─────────────────────────────────────────
-            if "mute" in cmd or "unmute" in cmd:
-                _set(knowledge={"title": "Audio Control", "content": "Toggling system volume mute."})
-                self.speak("Toggling mute.")
-                # Send VK_VOLUME_MUTE via nircmd or key press
-                subprocess.Popen(
-                    'powershell -c "(New-Object -ComObject WScript.Shell).SendKeys([char]173)"',
-                    shell=True
-                )
-                return
-
-            # ── SHUTDOWN / EXIT ────────────────────────────────
-            if re.search(r'\b(exit|quit|stop|sleep|shutdown|shut down|goodbye|bye|power off)\b', cmd):
-                self.speak("Shutting down Marry. Goodbye.")
+            elif tag == 'exit':
+                self.speak(response)
                 _set(is_listening=False, status="Offline", query="System shutdown complete.")
-                return
-
-            # ── FALLBACK ───────────────────────────────────────
-            # If no command matched, try a Google search as fallback
-            _set(knowledge={"title": "Fallback Search", "content": f"Query: {cmd}"})
-            self.speak(f"I didn't recognize that as a command. Searching Google for {cmd}.")
-            google_search(cmd)
 
         except Exception as e:
             _log("System", f"process_command exception: {e}")

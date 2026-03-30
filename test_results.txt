@@ -1,0 +1,124 @@
+﻿[predict] Model loaded successfully.
+[predict] Vectorizer loaded successfully.
+
+==========================================================================================
+  TEST 1 ù ML Model: predict_intent() for all 53 test inputs
+==========================================================================================
+  INPUT                               EXPECTED             GOT                    CONF  RESULT
+  -------------------------------------------------------------------------------------
+  hello                               greeting             greeting              70.5%  PASS
+  hi there                            greeting             greeting              80.9%  PASS
+  good morning                        greeting             greeting              66.2%  PASS
+  tell me about yourself              about_assistant      about_assistant       54.7%  PASS
+  who are you                         about_assistant      about_assistant       68.3%  PASS
+  help me                             help_user            help_user             78.9%  PASS
+  i need assistance                   help_user            help_user             72.4%  PASS
+  thank you so much                   thank_you            thank_you             79.9%  PASS
+  thanks buddy                        thank_you            thank_you             79.9%  PASS
+  sorry about that                    apology              apology               90.1%  PASS
+  tell me a joke                      jokes_fun            jokes_fun             45.4%  PASS
+  make me laugh                       jokes_fun            jokes_fun             71.5%  PASS
+  motivate me                         motivation           motivation            72.1%  PASS
+  i feel lazy                         motivation           motivation            72.5%  PASS
+  i am happy today                    mood_happy           mood_happy            74.7%  PASS
+  feeling amazing                     mood_happy           mood_happy            77.2%  PASS
+  i am sad                            mood_sad             mood_sad              74.1%  PASS
+  i feel down                         mood_sad             mood_sad              72.1%  PASS
+  how are you                         small_talk           small_talk            64.0%  PASS
+  what are you doing                  small_talk           small_talk            51.3%  PASS
+  what can you do                     capabilities         capabilities          75.5%  PASS
+  your features                       capabilities         capabilities          76.2%  PASS
+  what is ai                          ai_knowledge         ai_knowledge          83.7%  PASS
+  what is machine learning            ai_knowledge         ai_knowledge          77.3%  PASS
+  you are amazing                     compliments          compliments           80.2%  PASS
+  good job                            compliments          compliments           75.1%  PASS
+  who made you                        creator_info         creator_info          83.8%  PASS
+  who built you                       creator_info         creator_info          83.8%  PASS
+  what time is it                     time                 time                  75.5%  PASS
+  current time                        time                 time                  85.2%  PASS
+  time please                         time                 time                  76.9%  PASS
+  play music                          music                music                 88.3%  PASS
+  play bollywood songs                music                music                 76.0%  PASS
+  play a song                         music                music                 90.7%  PASS
+  weather today                       weather              weather               83.2%  PASS
+  what is the weather                 weather              weather               75.5%  PASS
+  search google                       search               search                88.5%  PASS
+  search for python                   search               search                72.0%  PASS
+  search wikipedia                    wikipedia            wikipedia             87.1%  PASS
+  open wikipedia                      wikipedia            wikipedia             84.1%  PASS
+  open youtube                        open_app             open_app              75.9%  PASS
+  open calculator                     open_app             open_app              75.9%  PASS
+  open notepad                        open_app             open_app              75.9%  PASS
+  open chrome                         open_app             open_app              79.4%  PASS
+  open instagram                      open_app             open_app              75.9%  PASS
+  open gmail                          open_app             open_app              75.9%  PASS
+  order food                          food                 food                  83.7%  PASS
+  i am hungry                         food                 food                  55.3%  PASS
+  open zomato                         food                 food                  70.8%  PASS
+  open amazon                         shopping             shopping              72.6%  PASS
+  open flipkart                       shopping             shopping              72.6%  PASS
+  bye                                 exit                 exit                  72.4%  PASS
+  goodbye                             exit                 exit                  72.4%  PASS
+  quit                                exit                 exit                  72.4%  PASS
+
+  ML Model Score: 54/54 passed, 0 failed
+
+==========================================================================================
+  TEST 2 ù Response Coverage: get_response() for all 23 tags
+==========================================================================================
+  TAG                       STATUS   SAMPLE RESPONSE
+  -------------------------------------------------------------------------------------
+  greeting                  OK       Hi there! What can I do for you?
+  about_assistant           OK       I am Marry, I help with automation, answering questions
+  help_user                 OK       Let me know your problem, I'll try my best to help.
+  thank_you                 OK       Happy to help!
+  apology                   OK       No worries!
+  jokes_fun                 OK       Why did the computer catch cold? It left its Windows op
+  motivation                OK       Small steps every day lead to big success.
+  mood_happy                OK       Great to hear that!
+  mood_sad                  OK       I'm here for you. Things will get better.
+  small_talk                OK       I'm doing great! Ready to help you.
+  capabilities              OK       I can help you with tasks like searching, answering que
+  ai_knowledge              OK       Artificial Intelligence allows systems to learn and mak
+  compliments               OK       Thank you! I appreciate it.
+  creator_info              OK       A team of engineers designed me to assist users.
+  music                     OK       Starting your playlist
+  weather                   OK       Checking current weather
+  time                      OK       Checking time for you
+  search                    OK       Looking it up for you
+  open_app                  OK       Starting the application
+  wikipedia                 OK       Fetching information from Wikipedia
+  food                      OK       Opening food delivery options
+  shopping                  OK       Let's find what you need
+  exit                      OK       Goodbye!
+
+  Response Coverage: 23/23 tags have valid responses
+
+==========================================================================================
+  TEST 3 ù Django API: POST /send_command/
+==========================================================================================
+  Server reachable at http://127.0.0.1:8000
+
+  COMMAND                             HTTP  SERVER RESPONSE
+  ---------------------------------------------------------------------------
+  hello                                404  HTTP Error: Not Found
+  what time is it                      404  HTTP Error: Not Found
+  tell me a joke                       404  HTTP Error: Not Found
+  thank you                            404  HTTP Error: Not Found
+  motivate me                          404  HTTP Error: Not Found
+  what is ai                           404  HTTP Error: Not Found
+  you are amazing                      404  HTTP Error: Not Found
+  i am sad                             404  HTTP Error: Not Found
+
+  API Score: 0/8 requests succeeded
+
+==========================================================================================
+  FINAL SUMMARY
+==========================================================================================
+  ML Model Accuracy  : 54/54  (100.0%)
+  Response Coverage  : 23/23  (all 23 intent tags)
+  API Endpoint       : 0/8  requests OK
+
+  Overall Score      : 77/85  (90.6%)
+==========================================================================================
+

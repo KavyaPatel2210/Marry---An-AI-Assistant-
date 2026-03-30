@@ -1,15 +1,19 @@
 import threading
 import speech_recognition as sr
 import pyttsx3
-import pywhatkit
-import wikipedia
 import webbrowser
 import datetime
 import os
 import time
 import re
+import urllib.parse
 import eel
-import pythoncom  # Needed to prevent Threading crashes on Windows with pyttsx3
+import pythoncom  # Required to prevent COM threading crashes on Windows with pyttsx3
+
+# ── ML Intent Prediction (from predict.py) ───────────────────────────────
+# predict_intent(text)  → (tag, confidence)
+# get_response(tag)     → random response string from intents.json
+from predict import predict_intent, get_response
 
 # Initialize Eel application with the web directory
 eel.init('web')
@@ -129,79 +133,205 @@ class WebVoiceAssistant:
                 continue
 
     def process_command(self, command):
+        """
+        ML-Powered Command Processor
+        ─────────────────────────────
+        Flow:
+          Voice input (text)  →  predict_intent()  →  intent tag
+                              →  execute action    →  speak response
+        """
         if not command:
             return
-            
-        try:
-            if command in ["hello", "hi", "hey", "hello jarvis", "hi jarvis", "hello aura", "hi aura"]:
-                self.speak("Greetings. All systems are operating smoothly.")
-            elif "how are you" in command:
-                self.speak("I am functioning flawlessly. How may I assist?")
-            elif "time" in command and "what" in command:
-                current_time = datetime.datetime.now().strftime("%I:%M %p")
-                self.speak(f"The current time is {current_time}.")
-            elif "date" in command and "what" in command:
-                current_date = datetime.datetime.now().strftime("%B %d, %Y")
-                self.speak(f"Today is {current_date}.")
-            
-            # G. Wikipedia
-            elif "wikipedia" in command:
-                query = command.replace("wikipedia", "").replace("search", "").replace("for", "").strip()
-                if query:
-                    try:
-                        self.safe_call_eel("update_knowledge", "Target: " + query.title(), "Fetching data from Wikipedia Servers...")
-                        results = wikipedia.summary(query, sentences=3)
-                        self.safe_call_eel("update_knowledge", "Wikipedia: " + query.title(), results)
-                        self.speak("Data extraction complete. Sent to your intelligence panel.")
-                        self.speak(results)
-                    except Exception:
-                        self.safe_call_eel("update_knowledge", "ERROR", "No definitive results matched.")
-                        self.speak("Please provide a more specific query.")
-                else:
-                    self.speak("What subject shall I query on Wikipedia?")
-                    
-            # B. Web & Search
-            elif "open google" in command:
-                self.safe_call_eel("update_knowledge", "Web Automation", "Launching Google Web Interface...")
-                self.speak("Accessing Google...")
-                webbrowser.open("https://www.google.com")
-            elif "open youtube" in command:
-                self.safe_call_eel("update_knowledge", "Web Automation", "Launching YouTube Media Interface...")
-                self.speak("Opening YouTube...")
-                webbrowser.open("https://www.youtube.com")
-            elif "search google for" in command or ("search" in command and "google" in command):
-                query = re.sub(r'search google for|search for|search|google|on', '', command).strip()
-                self.safe_call_eel("update_knowledge", "Web Search API", f"Executing query string: '{query}'")
-                self.speak(f"Searching Google for {query}.")
-                pywhatkit.search(query)
-            elif "play" in command and "youtube" in command:
-                query = command.replace("play", "").replace("youtube", "").replace("on", "").strip()
-                self.safe_call_eel("update_knowledge", "Media Player", f"Streaming globally: '{query}'")
-                self.speak(f"Routing {query} to YouTube.")
-                pywhatkit.playonyt(query)
 
-            # E. System Control
-            elif "open notepad" in command:
-                self.safe_call_eel("update_knowledge", "System Process", "PID Booted: NOTEPAD.EXE")
-                self.speak("Accessing notepad.")
-                os.system("notepad")
-            elif "open calculator" in command:
-                self.safe_call_eel("update_knowledge", "System Process", "PID Booted: CALC.EXE")
-                self.speak("Deploying calculator.")
-                os.system("calc")
-            elif "exit assistant" in command or "quit" in command or "sleep" in command or "shut down" in command:
-                self.speak("Powering down. Goodbye.")
+        try:
+            # ── Step 1: Predict intent using the trained ML model ──────────
+            tag, confidence = predict_intent(command)
+            self.safe_call_eel("update_log", "System",
+                               f"Intent: {tag}  (conf: {confidence*100:.1f}%)")
+
+            # ── Step 2: If confidence too low, fall back to web search ─────
+            if tag == "unknown":
+                self.speak("I'm not sure what you meant. Let me search for that.")
+                query = urllib.parse.quote(command)
+                webbrowser.open(f"https://www.google.com/search?q={query}")
+                return
+
+            # ── Step 3: Fetch a dynamic response from intents.json ─────────
+            response = get_response(tag)
+
+            # ── Step 4: Execute the appropriate action for each intent ─────
+
+            # --- Conversational / Social intents ---
+            social_intents = {
+                "greeting", "about_assistant", "help_user", "thank_you",
+                "apology", "jokes_fun", "motivation", "mood_happy",
+                "mood_sad", "small_talk", "capabilities", "ai_knowledge",
+                "compliments", "creator_info"
+            }
+            if tag in social_intents:
+                self.speak(response)
+
+            # --- Time / Date ---
+            elif tag == "time":
+                now = datetime.datetime.now()
+                t   = now.strftime("%I:%M %p")
+                d   = now.strftime("%B %d, %Y")
+                self.speak(f"The current time is {t} and today is {d}.")
+
+            # --- Music / YouTube ---
+            elif tag == "music":
+                # Extract the song/playlist query from the command
+                q = re.sub(
+                    r'\b(play|music|on|youtube|song|songs|playlist|start|please|any|a)\b',
+                    '', command
+                ).strip()
+                if not q:
+                    q = "trending songs"
+                self.safe_call_eel("update_knowledge", "Media Control",
+                                   f"Streaming: {q}")
+                self.speak(response)
+                url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(q)}"
+                webbrowser.open(url)
+
+            # --- Weather ---
+            elif tag == "weather":
+                self.speak(response)
+                webbrowser.open("https://www.google.com/search?q=weather+today")
+
+            # --- Web / Google Search ---
+            elif tag == "search":
+                q = re.sub(
+                    r'\b(search|for|on|google|internet|web|find|information|look|up|this)\b',
+                    '', command
+                ).strip()
+                if not q:
+                    q = command
+                self.safe_call_eel("update_knowledge", "Google Search",
+                                   f"Query: {q}")
+                self.speak(response)
+                webbrowser.open(
+                    f"https://www.google.com/search?q={urllib.parse.quote(q)}"
+                )
+
+            # --- Wikipedia ---
+            elif tag == "wikipedia":
+                # Strip navigation words to isolate the search topic
+                q = re.sub(
+                    r'\b(wikipedia|search|for|tell|from|about|open|wiki|find|on|me)\b',
+                    '', command
+                ).strip()
+                self.speak(response)
+                if q:
+                    try:
+                        import wikipedia as wiki_lib
+                        results = wiki_lib.summary(q, sentences=2)
+                        self.safe_call_eel("update_knowledge",
+                                           f"Wikipedia: {q.title()}", results)
+                        self.speak(f"According to Wikipedia: {results}")
+                    except Exception:
+                        self.safe_call_eel("update_knowledge", "Data Error",
+                                           "No Wikipedia entry found.")
+                        self.speak("I couldn't find an exact Wikipedia article for that.")
+                else:
+                    self.speak("What subject should I look up on Wikipedia?")
+
+            # --- Open Application / Website ---
+            elif tag == "open_app":
+                app_name = re.sub(
+                    r'\b(open|launch|start|application|browser|the)\b', '', command
+                ).strip()
+
+                # Map of website keywords → URLs
+                web_map = {
+                    "google":    "https://www.google.com",
+                    "youtube":   "https://www.youtube.com",
+                    "instagram": "https://www.instagram.com",
+                    "facebook":  "https://www.facebook.com",
+                    "twitter":   "https://www.x.com",
+                    "github":    "https://www.github.com",
+                    "linkedin":  "https://www.linkedin.com",
+                    "whatsapp":  "https://web.whatsapp.com",
+                    "gmail":     "https://mail.google.com",
+                    "maps":      "https://maps.google.com",
+                    "zoom":      "https://zoom.us",
+                    "amazon":    "https://www.amazon.in",
+                    "flipkart":  "https://www.flipkart.com",
+                }
+                # Map of desktop app keywords → Windows executables
+                app_map = {
+                    "notepad":     "notepad",
+                    "calculator":  "calc",
+                    "paint":       "mspaint",
+                    "word":        "winword",
+                    "excel":       "excel",
+                    "powerpoint":  "powerpnt",
+                    "vscode":      "code",
+                    "code":        "code",
+                    "explorer":    "explorer",
+                    "task manager":"taskmgr",
+                    "settings":    "ms-settings:",
+                    "chrome":      "chrome",
+                    "spotify":     "spotify",
+                }
+
+                self.speak(response)
+                opened = False
+
+                # Check websites first
+                for kw, url in web_map.items():
+                    if kw in app_name:
+                        webbrowser.open(url)
+                        opened = True
+                        break
+
+                # Then try desktop apps
+                if not opened:
+                    for kw, exe in app_map.items():
+                        if kw in app_name:
+                            if ":" in exe:   # protocol URI (e.g. ms-settings:)
+                                os.system(f'start "" "{exe}"')
+                            else:
+                                os.system(exe)
+                            opened = True
+                            break
+
+                if not opened and app_name:
+                    # Last resort: try running it directly
+                    os.system(app_name)
+
+            # --- Food Delivery ---
+            elif tag == "food":
+                self.speak(response)
+                if "zomato" in command:
+                    webbrowser.open("https://www.zomato.com")
+                else:
+                    webbrowser.open("https://www.swiggy.com")
+
+            # --- Shopping ---
+            elif tag == "shopping":
+                self.speak(response)
+                if "myntra" in command:
+                    webbrowser.open("https://www.myntra.com")
+                elif "flipkart" in command:
+                    webbrowser.open("https://www.flipkart.com")
+                else:
+                    webbrowser.open("https://www.amazon.in")
+
+            # --- Exit / Goodbye ---
+            elif tag == "exit":
+                self.speak(response)
                 global is_listening_global
                 is_listening_global = False
                 self.safe_call_eel("update_status", "Offline")
                 self.safe_call_eel("update_query", "System Shutdown.")
 
             else:
-                self.speak("Command not recognized.")
-                
+                # Unknown tag returned by model (shouldn't happen often)
+                self.speak(response)
+
         except Exception as e:
             self.safe_call_eel("update_log", "System", f"Fault: {e}")
-            self.speak("A fatal error occurred.")
+            self.speak("A system error occurred. Please try again.")
 
 
 # Init global assistant class
